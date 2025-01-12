@@ -5,6 +5,7 @@ from audio_processing.library_manager import LibraryManager
 from audio_processing.audio_manager import AudioManager
 from audio_processing.file_manager import select_audio_files, is_valid_audio_file
 from audio_processing.audio_player import AudioPlayer
+from audio_processing.audio_filters import change_tempo
 import os
 
 class GUIManager:
@@ -34,6 +35,15 @@ class GUIManager:
 
         # Dodanie odtwarzacza z przekazaniem funkcji callback
         self.player = AudioPlayer(self.player_frame, self.get_active_track)
+
+        #Filtry
+        self.tempo_slider = tk.Scale(self.right_frame, from_=0.5, to=2.0, resolution=0.1, orient=tk.HORIZONTAL,label="Tempo")
+        self.tempo_slider.pack(pady=5)
+
+        self.volume_slider = tk.Scale(self.right_frame, from_=-10, to=10, resolution=1, orient=tk.HORIZONTAL, label="Głośność (dB)")
+        self.volume_slider.pack(pady=5)
+
+        tk.Button(self.right_frame, text="Zastosuj filtry", command=self.apply_filters_to_selected).pack(pady=10)
 
         # Ramka edytora kolejki
         self.editor_frame = tk.Frame(self.main_frame, bg='orange')
@@ -192,6 +202,31 @@ class GUIManager:
             self.output_label.config(text="Plik został dodany do biblioteki.")
         else:
             messagebox.showerror("Błąd", "Nie udało się dodać pliku do biblioteki.")
+
+    def get_audio_segment(self):
+        playlista = AudioSegment()
+        for i in self.file_listbox:
+            playlista += i
+        return playlista
+
+    def apply_filters_to_selected(self):
+        selected_index = self.file_listbox.curselection()
+        if not selected_index:
+            messagebox.showwarning("Brak zaznaczenia", "Wybierz utwór, aby zastosować filtry!")
+            return
+
+        selected_index = selected_index[0]
+        file_path, _ = self.audio_manager.tracks[selected_index]
+
+        # Pobierz wartości filtrów
+        tempo = self.tempo_slider.get()
+        volume = self.volume_slider.get()
+
+        # Zapisz filtry do słownika w AudioManager
+        self.audio_manager.track_filters[file_path] = {"tempo": tempo, "volume": volume}
+
+        messagebox.showinfo("Sukces", f"Zastosowano filtry do utworu: Tempo={tempo}, Głośność={volume} dB")
+
 
     def run(self):
         self.root.mainloop()
