@@ -8,75 +8,88 @@ from audio_processing.audio_player import AudioPlayer
 from audio_processing.audio_filters import change_tempo
 import os
 
+accent_color = '#c74874'
+bg_color = '#2E2E2E'
+alt_bg_color = '#525151'
+font_color = 'white'
+
 class GUIManager:
     def __init__(self):
+
         self.audio_manager = AudioManager()
         self.library_manager = LibraryManager()
         self.root = tk.Tk()
         self.root.geometry('1200x600')
         self.root.title("Audio Mixer")
+        self.root.config(bg=bg_color)
         self.root.resizable(False, False)
 
         # Glowna ramka
-        self.main_frame = tk.Frame(self.root, bg='blue')
+        self.main_frame = tk.Frame(self.root, bg=bg_color)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Lewa ramka (biblioteka)
-        self.library_frame = tk.Frame(self.main_frame, bg='lightgrey')
+        self.library_frame = tk.Frame(self.main_frame, bg=bg_color)
         self.library_frame.pack(side=tk.LEFT, fill=tk.BOTH)  # Wypełnia lewą część
 
         # Prawa ramka (interfejs główny)
-        self.right_frame = tk.Frame(self.main_frame, bg='lightgrey')
+        self.right_frame = tk.Frame(self.main_frame, bg=bg_color)
         self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)  # Wypełnia prawą część
 
         # Ramka odtwarzacza
-        self.player_frame = tk.Frame(self.main_frame, bg='green')
+        self.player_frame = tk.Frame(self.main_frame, bg=bg_color)
         self.player_frame.pack(side=tk.BOTTOM, fill=tk.BOTH)
 
         # Dodanie odtwarzacza z przekazaniem funkcji callback
         self.player = AudioPlayer(self.player_frame, self.get_active_track)
 
         #Filtry
-        self.tempo_slider = tk.Scale(self.right_frame, from_=0.5, to=2.0, resolution=0.1, orient=tk.HORIZONTAL,label="Tempo")
-        self.tempo_slider.pack(pady=5)
 
-        self.volume_slider = tk.Scale(self.right_frame, from_=-10, to=10, resolution=1, orient=tk.HORIZONTAL, label="Głośność (dB)")
+        # Ustawienia dla prawego panelu
+        tk.Label(self.right_frame, text="FILTRY", font="Calibri 16 bold", bg=bg_color, fg=font_color, bd=0).pack(pady=15)
+
+        self.tempo_slider = tk.Scale(self.right_frame, from_=0.5, to=2.0, resolution=0.1, orient=tk.HORIZONTAL ,label="Tempo", bg="#2E2E2E", fg=accent_color, bd=0)
+        self.tempo_slider.pack(pady=5)
+        # W prawej ramce
+
+        self.volume_slider = tk.Scale(self.right_frame, from_=-10, to=10, resolution=1, orient=tk.HORIZONTAL, label="Głośność (dB)", bg="#2E2E2E", fg=accent_color)
         self.volume_slider.pack(pady=5)
 
-        tk.Button(self.right_frame, text="Zastosuj filtry", command=self.apply_filters_to_selected).pack(pady=10)
+        self.bass_slider = tk.Scale(self.right_frame, from_=0, to=20, resolution=1, orient=tk.HORIZONTAL, label="Podbicie basu (dB)", bg="#2E2E2E", fg=accent_color)
+        self.bass_slider.pack(pady=5)
+
+        tk.Button(self.right_frame, text="Zastosuj filtry", command=self.apply_filters_to_selected, bg=accent_color, fg=font_color, font=("Calibri", 12), bd=0).pack(pady=10)
 
         # Ramka edytora kolejki
-        self.editor_frame = tk.Frame(self.main_frame, bg='orange')
+        self.editor_frame = tk.Frame(self.main_frame, bg=bg_color)
         self.editor_frame.pack(side=tk.BOTTOM, fill=tk.BOTH)
 
         # Lista plików dodanych do składanki
-        self.file_listbox = tk.Listbox(self.main_frame, justify='center', selectmode=tk.SINGLE, bg='red')
-        self.file_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.file_listbox = tk.Listbox(self.main_frame, justify='center', selectmode=tk.SINGLE, bg='#3A3A3A', fg=font_color, font=("Arial", 12), selectbackground=accent_color)
+        self.file_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=20, padx=(0,10))
 
         # Dodajemy output_label
-        self.output_label = tk.Label(self.player_frame, text="", font="Calibri 12", bg='yellow')
+        self.output_label = tk.Label(self.player_frame, text="", font="Calibri 12", bg=bg_color)
         self.output_label.pack(pady=10)
 
         self.setup_ui()
 
     def setup_ui(self):
         # Ustawienia dla lewego panelu (biblioteka)
-        tk.Label(self.library_frame, text="Biblioteka", font="Calibri 14 bold", bg="lightgrey").pack(pady=10)
-        self.library_listbox = tk.Listbox(self.library_frame, width=30)
-        self.library_listbox.pack(pady=10, padx=5, fill=tk.BOTH, expand=True)  # Wypełnia całą dostępną przestrzeń
+        tk.Label(self.library_frame, text="BIBLIOTEKA", font="Calibri 16 bold", bg=bg_color, fg=font_color).pack(pady=(15,0))
+        self.library_listbox = tk.Listbox(self.library_frame, width=30, bg=alt_bg_color, fg=font_color, bd=0, highlightthickness=0, selectbackground=accent_color)
+        self.library_listbox.pack(pady=0, padx=10, fill=tk.BOTH, expand=True)  # Wypełnia całą dostępną przestrzeń
 
         # Przyciski biblioteki
-        tk.Button(self.library_frame, text="Dodaj piosenkę do bilbioteki", command=self.add_file_to_library).pack(pady=5)
-        tk.Button(self.library_frame, text="Dodaj piosenkę do składanki", command=self.add_library_file_to_mix).pack(pady=5)
+        tk.Button(self.library_frame, text="Dodaj piosenkę do bilbioteki", command=self.add_file_to_library, bd=0, bg=accent_color, fg=font_color).pack(pady=5)
+        tk.Button(self.library_frame, text="Dodaj piosenkę do składanki", command=self.add_library_file_to_mix, bd=0, bg=accent_color, fg=font_color).pack(pady=5)
 
-        # Ustawienia dla prawego panelu
-        tk.Label(self.right_frame, text="Filtry", font="Calibri 14 bold", bg='lightgrey').pack(pady=10)
 
         # Przyciski menedżera składanki
-        tk.Button(self.right_frame, text="Utwórz składankę", command=self.create_mix, width=20).pack(pady=10, padx=10, side=tk.BOTTOM)
+        tk.Button(self.right_frame, text="Utwórz składankę", command=self.create_mix, width=20).pack(pady=114, padx=0, side=tk.TOP)
 
-        tk.Button(self.editor_frame, text="Usuń piosenkę", command=self.remove_song).pack(pady=10, padx=(290,0), side=tk.LEFT, anchor='center')
-        tk.Button(self.editor_frame, text="Przenieś w górę", command=self.move_up).pack(pady=10, side=tk.LEFT, anchor='center')
+        tk.Button(self.editor_frame, text="Usuń piosenkę", command=self.remove_song).pack(pady=10, padx=(260,0), side=tk.LEFT, anchor='center')
+        tk.Button(self.editor_frame, text="Przenieś w górę", command=self.move_up).pack(pady=10, side=tk.LEFT, padx=15, anchor='center')
         tk.Button(self.editor_frame, text="Przenieś w dół", command=self.move_down).pack( pady=10,side=tk.LEFT, anchor='center')
 
         # Na koniec wczytaj bibliotekę do listy
@@ -216,17 +229,20 @@ class GUIManager:
             return
 
         selected_index = selected_index[0]
-        file_path, _ = self.audio_manager.tracks[selected_index]
+        file_path, _ = self.audio_manager.tracks[0]
 
         # Pobierz wartości filtrów
         tempo = self.tempo_slider.get()
         volume = self.volume_slider.get()
+        bass_gain = self.bass_slider.get()
 
         # Zapisz filtry do słownika w AudioManager
-        self.audio_manager.track_filters[file_path] = {"tempo": tempo, "volume": volume}
+        self.audio_manager.track_filters[file_path] = {
+            "tempo": tempo,
+            "volume": volume,
+            "bass_gain": bass_gain}
 
-        messagebox.showinfo("Sukces", f"Zastosowano filtry do utworu: Tempo={tempo}, Głośność={volume} dB")
-
+        messagebox.showinfo("Sukces", f"Zastosowano filtry do utworu: Tempo={tempo}, Głośność={volume} dB,  Basy={bass_gain} dB")
 
     def run(self):
         self.root.mainloop()

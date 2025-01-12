@@ -14,7 +14,7 @@ class AudioPlayer:
         pygame.mixer.init()
 
         # UI odtwarzacza
-        self.frame = tk.Frame(parent_frame, bg='green')
+        self.frame = tk.Frame(parent_frame, bg='#2E2E2E')
         self.frame.pack(fill=tk.BOTH, expand=True)
 
         self.play_button = tk.Button(self.frame, text="▶️ Odtwórz", command=self.play)

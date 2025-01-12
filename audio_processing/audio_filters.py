@@ -1,6 +1,5 @@
 from pydub import AudioSegment, utils
-from pydub.effects import speedup
-
+from pydub.effects import speedup, low_pass_filter
 
 def change_tempo(audio_segment_path, speed=1.0) -> AudioSegment:
     """
@@ -21,7 +20,6 @@ def change_tempo(audio_segment_path, speed=1.0) -> AudioSegment:
     final = speedup(sound, playback_speed=speed)
 
     return final  # Zwracamy zmieniony plik audio
-
 
 def get_prober_name():
     """
