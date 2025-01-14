@@ -1,11 +1,11 @@
 from pydub import AudioSegment, utils
 from pydub.effects import speedup, low_pass_filter
 
-def change_tempo(audio_segment_path, speed=1.0) -> AudioSegment:
+def change_tempo(audio_segment_path, speed) -> AudioSegment:
     """
     Zmienia tempo audio bez zmiany jego wysokości.
     :param audio_segment_path: Ścieżka do pliku audio jako string.
-    :param speed: Tempo odtwarzania. <1.0 oznacza wolniej, >1.0 oznacza szybciej.
+    :param speed: Tempo odtwarzania. speed >= 1.0
     :return: Obiekt AudioSegment z zmienionym tempem.
     """
     # Ustawienie ścieżki do ffmpeg

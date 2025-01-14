@@ -6,6 +6,7 @@ from audio_processing.audio_manager import AudioManager
 from audio_processing.file_manager import select_audio_files, is_valid_audio_file
 from audio_processing.audio_player import AudioPlayer
 from audio_processing.audio_filters import change_tempo
+import datetime
 import os
 
 accent_color = '#c74874'
@@ -48,7 +49,7 @@ class GUIManager:
         # Ustawienia dla prawego panelu
         tk.Label(self.right_frame, text="FILTRY", font="Calibri 16 bold", bg=bg_color, fg=font_color, bd=0).pack(pady=15)
 
-        self.tempo_slider = tk.Scale(self.right_frame, from_=0.5, to=2.0, resolution=0.1, orient=tk.HORIZONTAL ,label="Tempo", bg="#2E2E2E", fg=accent_color, bd=0)
+        self.tempo_slider = tk.Scale(self.right_frame, from_=1.1, to=2.0, resolution=0.1, orient=tk.HORIZONTAL ,label="Tempo", bg="#2E2E2E", fg=accent_color, bd=0)
         self.tempo_slider.pack(pady=5)
         # W prawej ramce
 
@@ -137,7 +138,8 @@ class GUIManager:
             try:
                 self.audio_manager.create_mix(output_path)
                 # Teraz ustawi się tekst w output_label
-                self.output_label.config(text=f"Składanka zapisana jako {output_path}")
+                date = datetime.datetime.now()
+                self.output_label.config(text=f"Składanka zapisana jako {output_path}" + str(date))
             except ValueError as e:
                 messagebox.showerror("Błąd", str(e))
 
@@ -229,7 +231,7 @@ class GUIManager:
             return
 
         selected_index = selected_index[0]
-        file_path, _ = self.audio_manager.tracks[0]
+        file_path, _ = self.audio_manager.tracks[selected_index]
 
         # Pobierz wartości filtrów
         tempo = self.tempo_slider.get()

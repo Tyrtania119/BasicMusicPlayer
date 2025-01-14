@@ -24,6 +24,7 @@ class LibraryManager:
         """Dodaje plik z lokalizacji użytkownika do folderu biblioteki."""
         file_path = filedialog.askopenfilename(
             title="Wybierz plik audio",
+            initialdir=self.library_folder,
             filetypes=[("Pliki audio", "*.mp3 *.wav *.ogg *.flac")]
         )
 

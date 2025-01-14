@@ -34,12 +34,6 @@ class AudioManager:
         """Przenieś piosenkę na niższy poziom (w dół)."""
         if index < len(self.tracks) - 1:
             self.tracks[index], self.tracks[index + 1] = self.tracks[index + 1], self.tracks[index]
-    def create_mix(self, output_path):
-        """Utwórz składankę i zapisz ją do pliku."""
-        if not self.tracks:
-            raise ValueError("Brak piosenek do utworzenia składanki")
-        mix = sum(track[1] for track in self.tracks)  # Sumowanie tylko obiektów AudioSegment
-        mix.export(output_path, format="mp3", codec="libmp3lame")
 
     def apply_filters(self, track, filters):
         """
@@ -60,15 +54,23 @@ class AudioManager:
         """Utwórz składankę i zapisz ją do pliku."""
         if not self.tracks:
             raise ValueError("Brak piosenek do utworzenia składanki")
-        if len(self.tracks) == 1:
+        if len(self.tracks) < 2:
             raise ValueError("W składance powinny być przynajmniej 2 piosenki")
-        mix = AudioSegment.silent(duration=0)  # Pusta składanka
 
+        # Utwórz pusty obiekt AudioSegment
+        mix = None  # Zmienna początkowo pusta
+
+        # Iteracja przez utwory, stosowanie filtrów i dodawanie do składanki
         for file_path, track in self.tracks:
             filters = self.track_filters.get(file_path, {})
-            #track = self.apply_filters(track, filters)  # Zastosuj filtry
-            mix += track
-        mix = self.apply_filters(track, filters)
+            filtered_track = self.apply_filters(track, filters)
+
+            if mix is None:  # Jeśli składanka jest pusta, przypisz pierwszy utwór
+                mix = filtered_track
+            else:  # Dodawaj kolejne utwory do istniejącej składanki
+                mix = mix.append(filtered_track)
+
+        # Eksport składanki
         mix.export(output_path, format="mp3", codec="libmp3lame")
 
     def boost_bass(self, audio_segment, bass_gain=10, cutoff=150):
