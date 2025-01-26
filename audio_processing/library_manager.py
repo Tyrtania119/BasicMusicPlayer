@@ -1,7 +1,7 @@
 import os
 from audio_processing.file_manager import is_valid_audio_file
 from tkinter import filedialog
-
+import shutil
 class LibraryManager:
     def __init__(self, library_folder="library"):
         self.library_folder = library_folder
